@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/// singly linked list node structure
 class Node
 {
 public:
@@ -14,102 +15,123 @@ public:
     }
 };
 
-class SinglyLL
+class SinglyLinkedList
 {
 public:
     Node *head;
 
-    SinglyLL()
+    SinglyLinkedList()
     {
         head = NULL;
     }
 
-    void insertAtEnd(int val)
+    // insert a node at the end
+    void insertNode(int val)
     {
         Node *newNode = new Node(val);
-
         if (head == NULL)
         {
             head = newNode;
             return;
         }
-
-        Node *temp = head;
-        while (temp->next != NULL)
+        Node *tail = head;
+        while (tail->next)
         {
-            temp = temp->next;
+            tail = tail->next;
         }
-        temp->next = newNode;
+        tail->next = newNode;
     }
 
-    // Add two numbers by linked lists
-    static Node *addTwoNumbers(Node *l1, Node *l2)
+    // reverse linked list
+    Node *reverseList(Node *head)
     {
-        Node dummy(0);  
-        Node *curr = &dummy; 
-        int carry = 0;   
+        Node *prev = NULL;
+        Node *curr = head;
+        Node *next = NULL;
 
-        // Traverse both lists
+        while (curr)
+        {
+            next = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = next;
+        }
+        return prev;
+    }
+
+    // add two numbers normally
+    Node *addNumbers(Node *l1, Node *l2)
+    {
+        int carry = 0;
+        Node *dummy = new Node(0);
+        Node *tail = dummy;
+
         while (l1 || l2 || carry)
         {
             int sum = carry;
-
             if (l1)
             {
                 sum += l1->data;
                 l1 = l1->next;
             }
-
             if (l2)
             {
                 sum += l2->data;
                 l2 = l2->next;
             }
 
-            carry = sum / 10;                // Update carry
-            curr->next = new Node(sum % 10); // Store current digit
-            curr = curr->next;
+            carry = sum / 10;
+            tail->next = new Node(sum % 10);
+            tail = tail->next;
         }
-
-        return dummy.next; // Return head of new list
+        return dummy->next;
     }
 
-    // Display linked list
-    void display()
+    // print linked list
+    void printList(Node *tail)
     {
-        Node *temp = head;
-        while (temp)
+        while (tail)
         {
-            cout << temp->data << " -> ";
-            temp = temp->next;
+            cout << tail->data << " -> ";
+            tail = tail->next;
         }
         cout << "NULL" << endl;
     }
 };
 
+// function to add two numbers represented by linked lists
+Node *solve(Node *l1, Node *l2, SinglyLinkedList &helper)
+{
+    // Step 1: Reverse both lists
+    l1 = helper.reverseList(l1);
+    l2 = helper.reverseList(l2);
+
+    // Step 2: Add normally
+    Node *sumList = helper.addNumbers(l1, l2);
+
+    // Step 3: Reverse the resultant list
+    sumList = helper.reverseList(sumList);
+
+    return sumList;
+}
+
 int main()
 {
-    SinglyLL list1, list2, result;
-    int n1, n2, val;
+    SinglyLinkedList l1, l2, helper;
 
-    cin >> n1;
-    for (int i = 0; i < n1; i++)
-    {
-        cin >> val;
-        list1.insertAtEnd(val);
-    }
+    // first list: 9 -> 1 -> 5
+    l1.insertNode(9);
+    l1.insertNode(1);
+    l1.insertNode(5);
 
-    cin >> n2;
-    for (int i = 0; i < n2; i++)
-    {
-        cin >> val;
-        list2.insertAtEnd(val);
-    }
+    // second list: 2 -> 5 -> 6
+    l2.insertNode(2);
+    l2.insertNode(5);
+    l2.insertNode(6);
 
-    // Static call using class name
-    result.head = SinglyLL::addTwoNumbers(list1.head, list2.head);
+    Node *ans = solve(l1.head, l2.head, helper);
 
-    result.display();
+    helper.printList(ans);
 
     return 0;
 }
